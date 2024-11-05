@@ -1,28 +1,31 @@
 function updateHubSpotContacts() {
   const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SHEET_NAME');
-  const lastProcessedRow =  35;
+
+  if (!sheet) {
+    Logger.log("Error: Could not find the sheet. Please check the sheet name.");
+    return;
+  }
 
   // Log progress
-  Logger.log(`Last processed row: ${lastProcessedRow}`);
   Logger.log(`Last row in the sheet: ${sheet.getLastRow()}`);
 
-  // Iterate through rows, starting from the next unprocessed row
-  for (let row = lastProcessedRow + 1; row <= sheet.getLastRow(); row++) {
+  // Iterate through rows, starting from row 2 to include all records (assuming row 1 is headers)
+  for (let row = 2; row <= sheet.getLastRow(); row++) {
     const rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
 
     // Extract contact data from the row
     const contactData = {
-  email: rowData[1],
-  firstname: rowData[8].toLowerCase().substring(0, 99),
-  lastname: rowData[9].toLowerCase().substring(0, 99),
-  phone: rowData[10],
-  city: rowData[11].toLowerCase().substring(0, 99),
-  country: rowData[12].toLowerCase().substring(0, 99),
-  jobtitle: rowData[15].toLowerCase().substring(0, 99),
-  company: rowData[16].toLowerCase().substring(0, 99),
-  skills: rowData[13].toLowerCase().substring(0, 99),
-  systems_and_methods: rowData[14].substring(0, 99)
-};
+      email: rowData[1] && rowData[1] !== "NULL" ? rowData[1] : "", // Column B
+      firstname: rowData[8] && rowData[8] !== "NULL" ? rowData[8].substring(0, 99) : "", // Column I
+      lastname: rowData[9] && rowData[9] !== "NULL" ? rowData[9].substring(0, 99) : "", // Column J
+      phone: rowData[10] && rowData[10] !== "NULL" ? rowData[10] : "", // Column K
+      city: rowData[11] && rowData[11] !== "NULL" ? rowData[11].substring(0, 99) : "", // Column L
+      country: rowData[12] && rowData[12] !== "NULL" ? rowData[12].substring(0, 99) : "", // Column M
+      jobtitle: rowData[15] && rowData[15] !== "NULL" ? rowData[15].substring(0, 99) : "", // Column P
+      company: rowData[16] && rowData[16] !== "NULL" ? rowData[16].substring(0, 99) : "", // Column Q
+      skills: rowData[13] && rowData[13] !== "NULL" ? rowData[13].substring(0, 99) : "", // Column N
+      systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? rowData[14].substring(0, 99) : "" // Column O
+    };
 
     // Skip rows without email
     if (!contactData.email) {
@@ -35,14 +38,11 @@ function updateHubSpotContacts() {
 
     // Send data to HubSpot
     sendDataToHubSpot(contactData);
-
-    // Update the last processed row
-    PropertiesService.getScriptProperties().setProperty('LAST_PROCESSED_ROW', row);
   }
 }
 
 function sendDataToHubSpot(contactData) {
-  const hubSpotUrl = "YOUR_HUBSPOT_URL";
+  const hubSpotUrl = "HUBSPOT_URL";
   const accessToken = "YOUR_ACCESS_TOKEN";
 
   // Search for existing contact by email
