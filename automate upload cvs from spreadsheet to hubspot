@@ -1,5 +1,5 @@
 function updateHubSpotContacts() {
-  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('Sheet1');
+  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SHEET_NAME');
   const lastProcessedRow =  35;
 
   // Log progress
