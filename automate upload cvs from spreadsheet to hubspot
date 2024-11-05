@@ -105,8 +105,7 @@ function getSkills(skill) {
 
 // Utility function to match systems and methods
 function getSystemsAndMethods(system) {
-  const systemsMethods = ["SYSTEMS&METHODS_LIST",
-        "SOAP", "gRPC", "GraphQL Yoga"];
+  const systemsMethods = ["SYSTEMS&METHODS_LIST"];
   return systemsMethods.includes(system) ? system : ""; // If the system is in the list, return it; otherwise, return an empty string
 }
 
