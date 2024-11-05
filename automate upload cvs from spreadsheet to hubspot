@@ -1,12 +1,12 @@
 function updateHubSpotContacts() {
-  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SHEET_NAME');
+  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SPREADSHEET_NAME');
 
   if (!sheet) {
     Logger.log("Error: Could not find the sheet. Please check the sheet name.");
     return;
   }
 
-  // Log progress
+  // Logging the last row to understand the range
   Logger.log(`Last row in the sheet: ${sheet.getLastRow()}`);
 
   // Iterate through rows, starting from row 2 to include all records (assuming row 1 is headers)
@@ -23,8 +23,10 @@ function updateHubSpotContacts() {
       country: rowData[12] && rowData[12] !== "NULL" ? rowData[12].substring(0, 99) : "", // Column M
       jobtitle: rowData[15] && rowData[15] !== "NULL" ? rowData[15].substring(0, 99) : "", // Column P
       company: rowData[16] && rowData[16] !== "NULL" ? rowData[16].substring(0, 99) : "", // Column Q
-      skills: rowData[13] && rowData[13] !== "NULL" ? rowData[13].substring(0, 99) : "", // Column N
-      systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? rowData[14].substring(0, 99) : "" // Column O
+      skills: rowData[13] && rowData[13] !== "NULL" ? getSkills(rowData[13]) : "", // Column N
+      systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? getSystemsAndMethods(rowData[14]) : "", // Column O
+      industry: rowData[17] && rowData[17] !== "NULL" ? getIndustry(rowData[17]) : "", // Assuming Column R for Industry
+      profile: rowData[7] && rowData[7] !== "NULL" ? rowData[7] : "" // Column H
     };
 
     // Skip rows without email
@@ -93,4 +95,23 @@ function sendDataToHubSpot(contactData) {
 
   // Log the response from HubSpot
   Logger.log("Response: " + createResponse.getContentText());
+}
+
+// Utility function to match skills
+function getSkills(skill) {
+  const skills = ["SKILLS_LIST"];
+  return skills.includes(skill) ? skill : ""; // If the skill is in the list, return it; otherwise, return an empty string
+}
+
+// Utility function to match systems and methods
+function getSystemsAndMethods(system) {
+  const systemsMethods = ["SYSTEMS&METHODS_LIST",
+        "SOAP", "gRPC", "GraphQL Yoga"];
+  return systemsMethods.includes(system) ? system : ""; // If the system is in the list, return it; otherwise, return an empty string
+}
+
+// Utility function to match industries
+function getIndustry(industry) {
+  const industries = ["INDUSTRIES_LIST"];
+  return industries.includes(industry) ? industry : ""; // If the industry is in the list, return it; otherwise, return an empty string
 }
