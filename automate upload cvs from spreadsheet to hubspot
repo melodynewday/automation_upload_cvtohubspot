@@ -1,0 +1,96 @@
+function updateHubSpotContacts() {
+  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('Sheet1');
+  const lastProcessedRow =  35;
+
+  // Log progress
+  Logger.log(`Last processed row: ${lastProcessedRow}`);
+  Logger.log(`Last row in the sheet: ${sheet.getLastRow()}`);
+
+  // Iterate through rows, starting from the next unprocessed row
+  for (let row = lastProcessedRow + 1; row <= sheet.getLastRow(); row++) {
+    const rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    // Extract contact data from the row
+    const contactData = {
+  email: rowData[1],
+  firstname: rowData[8].toLowerCase().substring(0, 99),
+  lastname: rowData[9].toLowerCase().substring(0, 99),
+  phone: rowData[10],
+  city: rowData[11].toLowerCase().substring(0, 99),
+  country: rowData[12].toLowerCase().substring(0, 99),
+  jobtitle: rowData[15].toLowerCase().substring(0, 99),
+  company: rowData[16].toLowerCase().substring(0, 99),
+  skills: rowData[13].toLowerCase().substring(0, 99),
+  systems_and_methods: rowData[14].substring(0, 99)
+};
+
+    // Skip rows without email
+    if (!contactData.email) {
+      Logger.log(`Error: Email is missing in row ${row}. Skipping.`);
+      continue;
+    }
+
+    // Log the contact data to be sent to HubSpot
+    Logger.log("Sending data to HubSpot: " + JSON.stringify(contactData));
+
+    // Send data to HubSpot
+    sendDataToHubSpot(contactData);
+
+    // Update the last processed row
+    PropertiesService.getScriptProperties().setProperty('LAST_PROCESSED_ROW', row);
+  }
+}
+
+function sendDataToHubSpot(contactData) {
+  const hubSpotUrl = "YOUR_HUBSPOT_URL";
+  const accessToken = "YOUR_ACCESS_TOKEN";
+
+  // Search for existing contact by email
+  const searchUrl = `${hubSpotUrl}/search`;
+  const searchPayload = {
+    filterGroups: [
+      {
+        filters: [
+          {
+            propertyName: "email",
+            operator: "EQ",
+            value: contactData.email
+          }
+        ]
+      }
+    ]
+  };
+
+  const searchResponse = UrlFetchApp.fetch(searchUrl, {
+    method: "post",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    payload: JSON.stringify(searchPayload),
+    muteHttpExceptions: true
+  });
+
+  const searchResult = JSON.parse(searchResponse.getContentText());
+
+  // If contact exists, skip creation
+  if (searchResult.total > 0) {
+    Logger.log("Contact already exists in HubSpot. Skipping update.");
+    return;
+  }
+
+  // Create new contact in HubSpot
+  const createPayload = { properties: contactData };
+  const createResponse = UrlFetchApp.fetch(hubSpotUrl, {
+    method: "post",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    payload: JSON.stringify(createPayload),
+    muteHttpExceptions: true
+  });
+
+  // Log the response from HubSpot
+  Logger.log("Response: " + createResponse.getContentText());
+}
