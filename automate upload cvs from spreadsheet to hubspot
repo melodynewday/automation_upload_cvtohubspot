@@ -1,4 +1,4 @@
-function updateHubSpotContacts() {
+function updateHubspotContacts() {
   const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SHEET_NAME');
 
   if (!sheet) {
@@ -8,7 +8,7 @@ function updateHubSpotContacts() {
 
   Logger.log(`Last row in the sheet: ${sheet.getLastRow()}`);
 
-  for (let row = 30; row <= sheet.getLastRow(); row++) {
+  for (let row = 50; row <= sheet.getLastRow(); row++) {
     const rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
 
     const contactData = {
@@ -20,9 +20,9 @@ function updateHubSpotContacts() {
   country: rowData[12] && rowData[12] !== "NULL" ? rowData[12].substring(0, 99) : "", // Column M
   jobtitle: rowData[15] && rowData[15] !== "NULL" ? rowData[15].substring(0, 99) : "", // Column P
   company: rowData[16] && rowData[16] !== "NULL" ? rowData[16].substring(0, 99) : "", // Column Q
-  skills: rowData[13] && rowData[13] !== "NULL" ? getSkills(rowData[13]) : "", // Column N
-  systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? getSystemsAndMethods(rowData[14]) : "", // Column O
-  industry: rowData[17] && rowData[17] !== "NULL" ? getIndustry(rowData[17]) : "", // Assuming Column R for Industry
+  skills: rowData[13] && rowData[13] !== "NULL" ? rowData[13].replace(/ - /g, '-') : "", // Column N
+  systems_and_methods: rowData[14] && rowData[14] !== "NULL" ?  rowData[14].replace(/ - /g, '-') : "", // Column O
+  industry: rowData[17] && rowData[17] !== "NULL" ?  rowData[17].replace(/ - /g, '-') : "", // Assuming Column R for Industry
   profile: rowData[7] && rowData[7] !== "NULL" ? rowData[7] : "" // Column H
 };
 
@@ -92,18 +92,3 @@ function sendDataToHubSpot(contactData) {
   Logger.log("Response: " + createResponse.getContentText());
 }
 
-// Ensure skills and systems & methods data are compatible with HubSpot before sending
-function getSkills(skill) {
-  const skills = ["YOUR_SKILLS_LIST"]; 
-  return skills.includes(skill) ? skill : ""; 
-}
-
-function getSystemsAndMethods(system) {
-  const systemsMethods = ["YOUR_SYSTEMS&METHODS_LIST"];
-  return systemsMethods.includes(system) ? system : ""; 
-}
-
-function getIndustry(industry) {
-  const industries = ["YOUR_INDUSTRY_LIST"];
-  return industries.includes(industry) ? industry : ""; 
-}
