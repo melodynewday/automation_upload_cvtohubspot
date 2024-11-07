@@ -1,47 +1,42 @@
 function updateHubSpotContacts() {
-  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SPREADSHEET_NAME');
+  const sheet = SpreadsheetApp.openById('YOUR_SPREADSHEET_ID').getSheetByName('YOUR_SHEET_NAME');
 
   if (!sheet) {
     Logger.log("Error: Could not find the sheet. Please check the sheet name.");
     return;
   }
 
-  // Logging the last row to understand the range
   Logger.log(`Last row in the sheet: ${sheet.getLastRow()}`);
 
-  // Iterate through rows, starting from row 2 to include all records (assuming row 1 is headers)
-  for (let row = 2; row <= sheet.getLastRow(); row++) {
+  for (let row = 30; row <= sheet.getLastRow(); row++) {
     const rowData = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
 
-    // Extract contact data from the row
     const contactData = {
-      email: rowData[1] && rowData[1] !== "NULL" ? rowData[1] : "", // Column B
-      firstname: rowData[8] && rowData[8] !== "NULL" ? rowData[8].substring(0, 99) : "", // Column I
-      lastname: rowData[9] && rowData[9] !== "NULL" ? rowData[9].substring(0, 99) : "", // Column J
-      phone: rowData[10] && rowData[10] !== "NULL" ? rowData[10] : "", // Column K
-      city: rowData[11] && rowData[11] !== "NULL" ? rowData[11].substring(0, 99) : "", // Column L
-      country: rowData[12] && rowData[12] !== "NULL" ? rowData[12].substring(0, 99) : "", // Column M
-      jobtitle: rowData[15] && rowData[15] !== "NULL" ? rowData[15].substring(0, 99) : "", // Column P
-      company: rowData[16] && rowData[16] !== "NULL" ? rowData[16].substring(0, 99) : "", // Column Q
-      skills: rowData[13] && rowData[13] !== "NULL" ? getSkills(rowData[13]) : "", // Column N
-      systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? getSystemsAndMethods(rowData[14]) : "", // Column O
-      industry: rowData[17] && rowData[17] !== "NULL" ? getIndustry(rowData[17]) : "", // Assuming Column R for Industry
-      profile: rowData[7] && rowData[7] !== "NULL" ? rowData[7] : "" // Column H
-    };
+  email: rowData[1] && rowData[1] !== "NULL" ? rowData[1] : "", // Column B
+  firstname: rowData[8] && rowData[8] !== "NULL" ? rowData[8].substring(0, 99) : "", // Column I
+  lastname: rowData[9] && rowData[9] !== "NULL" ? rowData[9].substring(0, 99) : "", // Column J
+  phone: rowData[10] && rowData[10] !== "NULL" ? rowData[10] : "", // Column K
+  city: rowData[11] && rowData[11] !== "NULL" ? rowData[11].substring(0, 99) : "", // Column L
+  country: rowData[12] && rowData[12] !== "NULL" ? rowData[12].substring(0, 99) : "", // Column M
+  jobtitle: rowData[15] && rowData[15] !== "NULL" ? rowData[15].substring(0, 99) : "", // Column P
+  company: rowData[16] && rowData[16] !== "NULL" ? rowData[16].substring(0, 99) : "", // Column Q
+  skills: rowData[13] && rowData[13] !== "NULL" ? getSkills(rowData[13]) : "", // Column N
+  systems_and_methods: rowData[14] && rowData[14] !== "NULL" ? getSystemsAndMethods(rowData[14]) : "", // Column O
+  industry: rowData[17] && rowData[17] !== "NULL" ? getIndustry(rowData[17]) : "", // Assuming Column R for Industry
+  profile: rowData[7] && rowData[7] !== "NULL" ? rowData[7] : "" // Column H
+};
 
-    // Skip rows without email
+
     if (!contactData.email) {
       Logger.log(`Error: Email is missing in row ${row}. Skipping.`);
       continue;
     }
 
-    // Log the contact data to be sent to HubSpot
     Logger.log("Sending data to HubSpot: " + JSON.stringify(contactData));
-
-    // Send data to HubSpot
     sendDataToHubSpot(contactData);
   }
 }
+
 
 function sendDataToHubSpot(contactData) {
   const hubSpotUrl = "HUBSPOT_URL";
@@ -97,20 +92,18 @@ function sendDataToHubSpot(contactData) {
   Logger.log("Response: " + createResponse.getContentText());
 }
 
-// Utility function to match skills
+// Ensure skills and systems & methods data are compatible with HubSpot before sending
 function getSkills(skill) {
-  const skills = ["SKILLS_LIST"];
-  return skills.includes(skill) ? skill : ""; // If the skill is in the list, return it; otherwise, return an empty string
+  const skills = ["YOUR_SKILLS_LIST"]; 
+  return skills.includes(skill) ? skill : ""; 
 }
 
-// Utility function to match systems and methods
 function getSystemsAndMethods(system) {
-  const systemsMethods = ["SYSTEMS&METHODS_LIST"];
-  return systemsMethods.includes(system) ? system : ""; // If the system is in the list, return it; otherwise, return an empty string
+  const systemsMethods = ["YOUR_SYSTEMS&METHODS_LIST"];
+  return systemsMethods.includes(system) ? system : ""; 
 }
 
-// Utility function to match industries
 function getIndustry(industry) {
-  const industries = ["INDUSTRIES_LIST"];
-  return industries.includes(industry) ? industry : ""; // If the industry is in the list, return it; otherwise, return an empty string
+  const industries = ["YOUR_INDUSTRY_LIST"];
+  return industries.includes(industry) ? industry : ""; 
 }
